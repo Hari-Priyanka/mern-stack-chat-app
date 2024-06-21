@@ -1,15 +1,20 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import Messages from './Messages';
 import MessageInput from './MessageInput';
 import { TiMessages } from 'react-icons/ti';
+import useConversations from '../../zustand/useConversation';
+import { useAuthContext } from '../../context/AuthContext';
 
 const MessageContainer = () => {
-  const noChatSelected = true;
+  const { selectedConversation, setSelectedConversation} = useConversations();
 
+  useEffect(() => {
+    return () => setSelectedConversation(null);
+  }, [setSelectedConversation]);
   return (
     <>
       <div className='flex flex-col h-full w-full'>
-        {noChatSelected ? (
+        {!selectedConversation ? (
           <NoChatSelected />
         ) : (
           <>
@@ -17,13 +22,15 @@ const MessageContainer = () => {
               <div className={'flex gap-2 items-center justify-center p-2 py-1 cursor-pointer rounded-md hover:bg-gray-600'}>
                 <div className='avatar online'>
                   <div className='w-12 rounded-full'>
-                    <img src="https://img.daisyui.com/images/stock/photo-1534528741775-53994a69daeb.jpg" alt='user avatar' />
+                    <img 
+                    src={selectedConversation.profilePic}
+                    alt='user avatar' />
                   </div>
                 </div>
 
                 <div className='flex flex-col flex-1'>
                   <div className='flex flex-col justify-start gap-1'>
-                    <p className='font-bold text-gray-200'>John Doe</p>
+                    <p className='font-bold text-gray-200'>{selectedConversation.fullName}</p>
                     <p className='font-bolder overflow-hidden'>here goes the status message</p>
                   </div>
                 </div>
@@ -42,10 +49,11 @@ const MessageContainer = () => {
 export default MessageContainer;
 
 const NoChatSelected = () => {
+  const { authUser } = useAuthContext();
   return (
     <div className='flex items-center justify-center w-full h-full'>
       <div className='px-4 text-center sm:text-lg md:text-xl text-gray-200 font-semibold flex flex-col items-center gap-2'>
-        <p>Welcome John Doe</p>
+        <p>Welcome {authUser.fullName}</p>
         <p>Select a chat to start messaging</p>
         <TiMessages className='text-3xl md:text-6xl text-center' />
       </div>
